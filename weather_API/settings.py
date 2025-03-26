@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-!h+x91immy#61zafbc_9n^--!zvz92^n7iy!63vl#fzv0e3tgp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["https://weather-api-db0d.onrender.com"]
+ALLOWED_HOSTS = ["weather-api-db0d.onrender.com"]
 
 
 # Application definition
@@ -123,6 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

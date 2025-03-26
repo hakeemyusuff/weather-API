@@ -3,5 +3,5 @@ from django.urls import path
 from weather import views
 
 urlpatterns = [
-    path("", views.weather, name="weather"),
+    path("<str:location>/", views.weather, name="weather"),
 ]
