@@ -1,25 +1,46 @@
 import requests
 from decouple import config
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, throttle_classes
+from django.views.decorators.cache import cache_page
+
+# from django.views.decorators.vary import vary_on_cookie
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
-def get_response(url, unit):
+def get_response(url, unit, payload):
+    response = requests.get(url, params=payload)
+    return response
+
+
+@swagger_auto_schema(
+    method="get",
+    manual_parameters=[
+        openapi.Parameter(
+            "unit",
+            openapi.IN_QUERY,
+            description="Unit (metric)",
+            type=openapi.TYPE_STRING,
+        ),
+    ],
+    responses={200: "weather data JSON"},
+)
+@cache_page(60 * 30)
+@api_view()
+@throttle_classes([AnonRateThrottle])
+def weather(request, location):
+    url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}"
+    unit = request.GET.get("unit", "metric")
     payload = {
         "unitGroup": unit,
         "key": config("key"),
         "contentType": "json",
     }
-    response = requests.get(url, params=payload)
-    return response
 
-
-@api_view()
-def weather(request, location):
-    url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}"
-    unit = request.GET.get("unit", "metric")
     try:
-        response = get_response(url, unit)
+        response = get_response(url, unit, payload)
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.HTTPError as e:
